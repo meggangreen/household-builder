@@ -3,17 +3,19 @@
 // [x] Add people to a growing household list
 // [x] Remove a previously added person from the list
 // [x] Display the household list in the HTML as it is modified
-// [ ] Serialize the household as JSON upon submission as a fake trip to the server
-// [ ] On submission, put the serialized JSON in the provided "debug" DOM element
-// [ ] and display that element.
-// [ ] After submission the user should be able to make changes and resubmit.
+// [x] Serialize the household as JSON upon submission as a fake trip to the server
+// [x] On submission, put the serialized JSON in the provided "debug" DOM element
+// [x] and display that element.
+// [x] After submission the user should be able to make changes and resubmit.
 
-"use strict";
-
-// [ ] onClick listeners: submit, add, edit-id, remove-id
+// notes:
+// [x] onClick listeners: submit, add, edit-id, remove-id
 // [x] validation: age > 0, relationship !== ''
 //      'add' button disabled until validation successful
+//      'submit' button disabled until list has items
 
+
+"use strict";
 
 // Variable assignments
 let hhList = document.getElementsByTagName("ol")[0]
@@ -53,6 +55,12 @@ if (addButton.addEventListener) {
     addButton.attachEvent("onclick", addEditPerson);
 } // end if -- addButton click
 
+if (submitButton.addEventListener) {
+    submitButton.addEventListener("click", submitHousehold);
+} else if (submitButton.attachEvent) {  // IE8 and earlier
+    submitButton.attachEvent("onclick", submitHousehold);
+} // end if -- submitButton click
+
 
 function Person(id, age, relation, smoker) {
     /* A person constructor. */
@@ -62,8 +70,7 @@ function Person(id, age, relation, smoker) {
     this.relation = relation,
     this.smoker = smoker;
 
-    // this.makePersonLI = makePersonLI(this);
-}
+} // end Person
 
 
 function resetForm() {
@@ -171,12 +178,53 @@ function submitHousehold(evt) {
 
     evt.preventDefault();
 
+    // Serialize JSON payload
+    let hhPeopleClean = cleanOutNulls(hhPeople);
+    let hhPeopleSerial = JSON.stringify(hhPeopleClean);
 
-    // compile payload
-    // send ajax call to update db
-    //      put json into 'debug'
-    // display response (a success/failure message)
+    // Get response message area ready
+    let debugEl = document.getElementsByClassName("debug")[0];
+    debugEl.style.display = "inline-block";
+    debugEl.insertAdjacentText("beforeend", "JSON: " + hhPeopleSerial);
+
+    // Send to server
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("POST", 'index.html', true);
+    xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.onload = function () {
+        if ( this.readyState == 4 && this.status == 200 ) {
+            debugEl.insertAdjacentHTML("beforeend", "<p>Response: success!</p>");
+        } else {
+            debugEl.insertAdjacentHTML("beforeend", "<p>Response: failure</p>");
+        } // end if
+    };
+    xhttp.send(hhPeopleSerial);
+
 } // end submitHousehold
+
+
+function cleanOutNulls(arr) {
+    /* Returns copy of the arr setting null values to 'remove' for processing on
+       the backend. Uses one pass for speed.
+
+       Ideally, people can populate this list by pulling their current household
+       members from the database and add to, edit, or remove from the list, and
+       then submit changes to the database. It's not perfect as is, because the
+       same family member could get added and removed 1000 times, but it's fine.
+    */
+
+    let newArr = new Array();
+    for ( let i = 0; i < arr.length; i++ ) {
+        if ( arr[i] ) {
+            newArr.push(arr[i]);
+        } else {
+            newArr.push({id:i, remove:true});
+        } // end if
+    } // end for
+
+    return newArr;
+
+} // end cleanOutNulls
 
 
 function makePersonLI(person) {

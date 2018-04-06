@@ -14,6 +14,13 @@
 //      'add' button disabled until validation successful
 //      'submit' button disabled until list has items
 
+// I learned JavaScript recently and in ES6. I know the project asks for ES5; I
+// am unsure what differences might exist. I tried to check the MDN and W3Schools
+// docs for browser compatibility.
+
+// I have exposure to Jasmine for testing JS, but am not sure how quickly or
+// elegantly I could implement it for this project. I will forego testing.
+
 
 "use strict";
 
@@ -27,7 +34,6 @@ let submitButton = document.getElementsByTagName("button")[1];
 let ageField = document.getElementsByName("age")[0];
 let relationField = document.getElementsByName("rel")[0];
 let smokerField = document.getElementsByName("smoker")[0];
-
 
 // Make a cancel button to use in edit mode
 let cancelButton = createDocButton("cancel", "edit", "cancelEdit()");
@@ -62,6 +68,7 @@ if (submitButton.addEventListener) {
 } // end if -- submitButton click
 
 
+// Person constructor
 function Person(id, age, relation, smoker) {
     /* A person constructor. */
 
@@ -73,23 +80,7 @@ function Person(id, age, relation, smoker) {
 } // end Person
 
 
-function resetForm() {
-    /* Resets all aspects of the form. */
-
-    personID = -1;
-    personForm.reset();
-    addButton.innerHTML = "add";
-    addButton.disabled = true;
-    if (personForm.lastElementChild.firstElementChild.isSameNode(cancelButton)) {
-        personForm.lastElementChild.replaceChild(submitButton, cancelButton);
-    } // end if
-
-    submitButton.disabled = (hhList.childElementCount > 0) ? false : true;
-
-} // end resetForm
-
-
-// Validation functions
+// Validation function
 function validateInputs() {
     /* Validate age and relationship as they're being entered. */
 
@@ -104,11 +95,12 @@ function validateInputs() {
 } // end validateInputs
 
 
+// Event handler callback functions
 function addEditPerson(evt) {
     /* Add or edit a person's data. Triggered when add/update clicked. */
 
     evt.preventDefault();
-    // get form data -- revalidate first?
+    // get form data -- revalidate first? I don't think it's necessary
     let person = new Person((personID > -1) ? personID : hhPeople.length,
                             ageField.value,
                             relationField.value,
@@ -201,6 +193,23 @@ function submitHousehold(evt) {
     xhttp.send(hhPeopleSerial);
 
 } // end submitHousehold
+
+
+// Helper functions
+function resetForm() {
+    /* Resets all aspects of the form. */
+
+    personID = -1;
+    personForm.reset();
+    addButton.innerHTML = "add";
+    addButton.disabled = true;
+    if (personForm.lastElementChild.firstElementChild.isSameNode(cancelButton)) {
+        personForm.lastElementChild.replaceChild(submitButton, cancelButton);
+    } // end if
+
+    submitButton.disabled = (hhList.childElementCount > 0) ? false : true;
+
+} // end resetForm
 
 
 function cleanOutNulls(arr) {

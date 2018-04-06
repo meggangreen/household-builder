@@ -19,7 +19,7 @@
 // Variable assignments
 let hhList = document.getElementsByTagName("ol")[0]
 let hhPeople = new Array();
-let personID = null;
+let personID = -1;
 let personForm = document.getElementsByTagName("form")[0];
 let addButton = document.getElementsByTagName("button")[0];
 let submitButton = document.getElementsByTagName("button")[1];
@@ -70,11 +70,11 @@ function validateInputs() {
 } // end validateInputs
 
 
-function Person(id, age, relation, smoke) {
+function Person(id, age, relation, smoker) {
     this.id = id;
     this.age = age;
     this.relation = relation,
-    this.smoke = smoke;
+    this.smoker = smoker;
 
     // this.makePersonLI = makePersonLI(this);
 }
@@ -83,27 +83,33 @@ function Person(id, age, relation, smoke) {
 function addPerson(evt) {
     evt.preventDefault();
     // get form data -- revalidate first?
-    let person = new Person(personID || hhPeople.length,
+    let person = new Person((personID > -1) ? personID : hhPeople.length,
                             ageField.value,
                             relationField.value,
                             smokerField.checked);
 
+    console.log(personID, person.id);
+
+
     // Send person to be made into a list item element
     let personLI = makePersonLI(person);
 
-    if (personID) {
+    if (personID > -1) {
         hhPeople[personID] = person;
-        personToReplace = findPersonLI(personID);
+        let personToReplace = findPersonLI(personID);
         hhList.replaceChild(personLI, personToReplace);
     } else {
         hhPeople.push(person);
         hhList.appendChild(personLI);
     } // end if
 
-    // If updating a person, we need to reset the addButton text and personID
+    // We need to reset the form
+    personID = -1;
     personForm.reset();
-    // evt.innerHTML = "add";
-    personID = null;
+    addButton.innerHTML = "add";
+    if (personForm.lastElementChild.firstElementChild.isSameNode(cancelButton)) {
+        personForm.lastElementChild.replaceChild(submitButton, cancelButton);
+    } // end if
 
     submitButton.disabled = (hhList.childElementCount > 0) ? false : true;
 
@@ -114,9 +120,21 @@ function editPerson(evt) {
     /*  Places person's data in form ready to re-add. Changes addButton to say
         'update', replaces submitButton with cancelButton. evt must be LI
         element.  */
+
+    // Change form layout
     submitButton.disabled = true;
     addButton.innerHTML = "update";
     personForm.lastElementChild.replaceChild(cancelButton, submitButton);
+
+    // Get person and fill in form with person attributes
+    personID = Number(evt.id);
+    let person = hhPeople[personID];
+    ageField.value = person.age;
+    relationField.value = person.relation;
+    smokerField.checked = person.smoker;
+
+
+
 
 
 
@@ -160,7 +178,7 @@ function makePersonLI(person) {
     let text = ""
     text += "Age: " + person.age + " ";
     text += "Relationship: " + person.relation + " ";
-    text += "Smoker: " + String(person.smoke);
+    text += "Smoker: " + String(person.smoker);
     nodeLI.appendChild(document.createTextNode(text));
     nodeLI.appendChild(editN);
     nodeLI.appendChild(removeN);
@@ -173,11 +191,31 @@ function makePersonLI(person) {
 function findPersonLI(personID) {
     /* Returns an existing person list item element from the DOM. */
 
-    hhList.children.forEach(function() {
-        if ( item.id === String(personID) ) {
-            return item;
+    let peopleLI = hhList.children;
+    for ( let i = 0; i < peopleLI.length; i++ ) {
+        if ( peopleLI[i].id === String(personID) ) {
+            return peopleLI[i];
         } // end if
-    }); // end forEach
+    } // end for
+
+    // hhList.children.forEach(function(item) {
+    //     if ( item.id === String(personID) ) {
+    //         return item;
+    //     } // end if
+    // }); // end forEach
 
     return null;
+}
+
+
+function findPersonObj(personID) {
+    /* Returns an existing person list item element from the DOM. */
+
+    // hhPeople.forEach(function() {
+    //     if ( item.id === String(personID) ) {
+    //         return item;
+    //     } // end if
+    // }); // end forEach
+
+    return hhPeople[personID];
 }

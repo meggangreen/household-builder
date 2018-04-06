@@ -17,6 +17,7 @@
 
 
 // Variable assignments
+let personID = null;
 let addButton = document.getElementsByTagName("button")[0];
 let submitButton = document.getElementsByTagName("button")[1];
 let ageField = document.getElementsByName("age")[0];
@@ -38,7 +39,7 @@ if (relationField.addEventListener) {
     relationField.addEventListener("change", validateInputs);
 } else if (relationField.attachEvent) {  // IE8 and earlier
     relationField.attachEvent("onchange", validateInputs);
-}
+} // end if -- relationField change
 
 
 // Validation functions

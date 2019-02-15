@@ -92,10 +92,23 @@ function validateInputs() {
 
     let ageInput = Number(ageField.value);
     let relationInput = relationField.value;
-    if ( (isNaN(ageInput)) || (ageInput <= 0) || (relationInput === '') ) {
+    let errorDIV = document.getElementById("error");
+    let errorMessage = "";
+    if (isNaN(ageInput)) {
+        errorMessage = errorMessage + "Age needs to be a number.";
+    } else if (ageInput <= 0) {
+        errorMessage = errorMessage + "Age must be greater than 0.";
+    } else if (relationInput === '') {
+        errorMessage = errorMessage + "Relationship cannot be empty.";
+    } // end if
+
+
+    if ( errorMessage ) {
         addButton.disabled = true;
+        errorDIV.innerHTML = errorMessage;
     } else {
         addButton.disabled = false;
+        errorDIV.innerHTML = "";
     } // end if
 
 } // end validateInputs
@@ -228,14 +241,27 @@ function cleanOutNulls(arr) {
        same family member could get added and removed 1000 times, but it's fine.
     */
 
-    let newArr = new Array();
-    for ( let i = 0; i < arr.length; i++ ) {
-        if ( arr[i] ) {
-            newArr.push(arr[i]);
-        } else {
-            newArr.push({id:i, remove:true});
-        } // end if
-    } // end for
+    // let newArr = new Array();
+    let newArr = arr.map((element, index) => element || {id:index, remove:true})
+
+    //  {
+    //     // console.log(element);
+    //     if ( element ) {
+    //         return element;
+    //         // newArr.push(element);
+    //     } else {
+    //         return {id:index, remove:true};
+    //     } // end if
+    // });
+
+
+    // for ( let i = 0; i < arr.length; i++ ) {
+    //     if ( arr[i] ) {
+    //         newArr.push(arr[i]);
+    //     } else {
+    //         newArr.push({id:i, remove:true});
+    //     } // end if
+    // } // end for
 
     return newArr;
 

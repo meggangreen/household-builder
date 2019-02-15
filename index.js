@@ -55,6 +55,12 @@ if (relationField.addEventListener) {
     relationField.attachEvent("onchange", validateInputs);
 } // end if -- relationField change
 
+if (smokerField.addEventListener) {
+    smokerField.addEventListener("change", validateInputs);
+} else if (smokerField.attachEvent) {  // IE8 and earlier
+    smokerField.attachEvent("onchange", validateInputs);
+} // end if -- smokerField change
+
 if (addButton.addEventListener) {
     addButton.addEventListener("click", addEditPerson);
 } else if (addButton.attachEvent) {  // IE8 and earlier
